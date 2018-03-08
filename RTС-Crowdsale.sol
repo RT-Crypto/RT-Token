@@ -1,9 +1,6 @@
 pragma solidity ^0.4.18;
 
-/**
- * @title SafeMath
- * @dev Math operations with safety checks that throw on error
- */
+
 library SafeMath {
 
 
@@ -38,8 +35,7 @@ library SafeMath {
   }
 }
 
-
-contract RTcoin {
+contract RTCoin {
     using SafeMath for uint256;
     
 	address public owner;
@@ -52,7 +48,7 @@ contract RTcoin {
 	mapping (address => uint256) balances;
     
     
-    function RTcoin(string _name, string _symbol, uint8 _decimals) public {
+    function RTCoin(string _name, string _symbol, uint8 _decimals) public {
 		decimals = _decimals;
 		name = _name;
 		symbol = _symbol;
@@ -133,18 +129,18 @@ contract Crowdsale {
     
     using SafeMath for uint256;
     address fundsWallet;
-    RTcoin public token;
+    RTCoin public token;
     address public owner;
 	bool public open = false;
     uint256 public tokenLimit;
     
-    uint256 public rate = 20000;  
+    uint256 public rate = 20000; //значение для pre ICO, 0.00005 ETH = 1 RTC 
     
     
     function Crowdsale(address _fundsWallet, address tokenAddress, 
                        uint256 _rate, uint256 _tokenLimit) public {
         fundsWallet = _fundsWallet;
-        token = RTcoin(tokenAddress);
+        token = RTCoin(tokenAddress);
         rate = _rate;
         owner = msg.sender;
         tokenLimit = _tokenLimit * (uint256(10) ** token.decimals());
@@ -180,6 +176,12 @@ contract Crowdsale {
         else return weiAmount.mul(rate);
     }
     
+    function transferTo(address _to, uint256 _value) public onlyOwner returns (bool) {
+        require(tokenLimit>0);
+        token.transfer(_to, _value);
+        tokenLimit = tokenLimit.sub(_value);
+    }
+    
     modifier onlyOwner() {
         require(msg.sender == owner);
         _;
@@ -190,7 +192,7 @@ contract Crowdsale {
         open = true;
     }
     
-   
+    
     function disallowSale() public onlyOwner {
         open = false;
     }
